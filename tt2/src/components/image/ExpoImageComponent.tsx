@@ -1,13 +1,14 @@
 import { Image as ExpoImage } from "expo-image";
 import { memo } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { ImageViewProps } from "./types";
 
 export const ExpoImageComponent = memo(function ExpoImageComponent({
   uri,
   itemSize,
+  onPress,
 }: ImageViewProps) {
-  return (
+  const ImageComponent = (
     <ExpoImage
       source={{ uri }}
       decodeFormat="rgb"
@@ -18,6 +19,16 @@ export const ExpoImageComponent = memo(function ExpoImageComponent({
       style={[styles.image, { width: itemSize, height: itemSize }]}
     />
   );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+        {ImageComponent}
+      </TouchableOpacity>
+    );
+  }
+
+  return ImageComponent;
 });
 
 const styles = StyleSheet.create({

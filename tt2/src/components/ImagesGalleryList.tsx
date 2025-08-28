@@ -13,6 +13,8 @@ import { SplashScreen } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { scaledPixels } from "@/hooks/useScale";
 import { getHandle, useFocusRefs } from "@/providers/FocusRefProvider";
+import { usePhotoViewer } from "@/hooks/usePhotoViewer";
+import { PhotoViewerModal } from "./PhotoViewer";
 
 /**
  * Helper definitions - images gallery list props
@@ -44,6 +46,18 @@ export const ImagesGalleryList = ({
   const { mediaLibraryPhotos, mediaLibraryLoadingState } =
     useMediaLibraryPhotos();
   const { offscreenDrawDistanceWindowSize } = useGalleryUISettings();
+
+  // Photo viewer state management
+  const {
+    isVisible: photoViewerVisible,
+    currentIndex: photoViewerIndex,
+    photos: photoViewerPhotos,
+    openViewer,
+    closeViewer,
+    goToIndex,
+    goToNext,
+    goToPrevious,
+  } = usePhotoViewer();
 
   /**
    * Helper functions - properties calculation
@@ -130,15 +144,21 @@ export const ImagesGalleryList = ({
           }
         : {};
 
+      // Handle opening photo viewer
+      const handlePress = () => {
+        openViewer(index, cachedPhotos);
+      };
+
       return (
         <Image
           uri={item.cachedPhotoUri}
           itemSize={properties.singleImageSize}
+          onPress={handlePress}
           {...focusProps}
         />
       );
     },
-    [properties, settingsButtonHandle, Image, numberOfColumns],
+    [properties, settingsButtonHandle, Image, numberOfColumns, openViewer, cachedPhotos],
   );
 
   const ItemSeparator = useCallback(() => {
@@ -164,7 +184,7 @@ export const ImagesGalleryList = ({
   return (
     <View style={[styles.listContainer, style]}>
       <FlashList
-        key={mediaLibraryLoadingState}    // Temporary solution to prevent empty list crash
+        key={mediaLibraryLoadingState} // Temporary solution to prevent empty list crash
         data={cachedPhotos}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
@@ -195,6 +215,17 @@ export const ImagesGalleryList = ({
           );
         }}
         disableAutoLayout={true}
+      />
+
+      {/* Photo Viewer Modal */}
+      <PhotoViewerModal
+        visible={photoViewerVisible}
+        currentIndex={photoViewerIndex}
+        photos={photoViewerPhotos}
+        onClose={closeViewer}
+        onIndexChange={goToIndex}
+        onSwipeLeft={goToNext}
+        onSwipeRight={goToPrevious}
       />
     </View>
   );
