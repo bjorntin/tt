@@ -1,23 +1,29 @@
 import { useState, useCallback } from "react";
 import { CachedPhotoType } from "@/providers/CachedPhotosProvider/cache-service";
-import { ViewerPhoto, usePhotoViewerReturn } from "@/components/PhotoViewer/types";
+import {
+  ViewerPhoto,
+  usePhotoViewerReturn,
+} from "@/components/PhotoViewer/types";
 
 export const usePhotoViewer = (): usePhotoViewerReturn => {
   const [isVisible, setIsVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [photos, setPhotos] = useState<ViewerPhoto[]>([]);
 
-  const openViewer = useCallback((index: number, cachedPhotos: CachedPhotoType[]) => {
-    const viewerPhotos: ViewerPhoto[] = cachedPhotos.map((photo, idx) => ({
-      uri: photo.originalPhotoUri, // Use full-resolution original image
-      originalUri: photo.originalPhotoUri,
-      index: idx,
-    }));
+  const openViewer = useCallback(
+    (index: number, cachedPhotos: CachedPhotoType[]) => {
+      const viewerPhotos: ViewerPhoto[] = cachedPhotos.map((photo, idx) => ({
+        uri: photo.originalPhotoUri, // Use full-resolution original image
+        originalUri: photo.originalPhotoUri,
+        index: idx,
+      }));
 
-    setPhotos(viewerPhotos);
-    setCurrentIndex(index);
-    setIsVisible(true);
-  }, []);
+      setPhotos(viewerPhotos);
+      setCurrentIndex(index);
+      setIsVisible(true);
+    },
+    [],
+  );
 
   const closeViewer = useCallback(() => {
     setIsVisible(false);
@@ -35,11 +41,14 @@ export const usePhotoViewer = (): usePhotoViewerReturn => {
     setCurrentIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : prevIndex));
   }, []);
 
-  const goToIndex = useCallback((index: number) => {
-    if (index >= 0 && index < photos.length) {
-      setCurrentIndex(index);
-    }
-  }, [photos.length]);
+  const goToIndex = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < photos.length) {
+        setCurrentIndex(index);
+      }
+    },
+    [photos.length],
+  );
 
   return {
     isVisible,

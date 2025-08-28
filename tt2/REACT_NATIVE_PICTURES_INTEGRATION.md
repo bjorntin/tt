@@ -84,6 +84,7 @@ graph TD
 _ [x] **Step 3.2**: Implement Bounded Navigation Logic
   - **Behavior**: Swiping right increments the index, stopping at the last image. Swiping left decrements the index, stopping at the first image. This prevents infinite looping and unexpected jumps in navigation.
   - **Logic**:
+
     ```typescript
     // Go to next photo (bounded)
     const goToNext = useCallback(() => {

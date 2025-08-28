@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { View, PanResponder, PanResponderGestureState } from "react-native";
+import { View, PanResponder } from "react-native";
 import { GestureHandlerProps } from "./types";
 
 const SWIPE_THRESHOLD = 50; // Minimum distance for swipe recognition
@@ -28,7 +28,10 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
         const meetsDistanceThreshold = Math.abs(dx) > SWIPE_THRESHOLD;
         const meetsVelocityThreshold = Math.abs(vx) > SWIPE_VELOCITY_THRESHOLD;
 
-        if (isHorizontalSwipe && (meetsDistanceThreshold || meetsVelocityThreshold)) {
+        if (
+          isHorizontalSwipe &&
+          (meetsDistanceThreshold || meetsVelocityThreshold)
+        ) {
           if (dx > 0) {
             // Swipe right - go to previous
             onSwipeRight();
@@ -36,7 +39,11 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
             // Swipe left - go to next
             onSwipeLeft();
           }
-        } else if (Math.abs(dx) < 20 && Math.abs(dy) < 20 && Math.abs(vx) < 0.1) {
+        } else if (
+          Math.abs(dx) < 20 &&
+          Math.abs(dy) < 20 &&
+          Math.abs(vx) < 0.1
+        ) {
           // Treat as tap if movement is minimal
           onTap();
         }
@@ -45,7 +52,7 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
       onPanResponderTerminate: () => {
         // Gesture terminated - could reset any visual feedback
       },
-    })
+    }),
   ).current;
 
   return (

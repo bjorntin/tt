@@ -158,7 +158,14 @@ export const ImagesGalleryList = ({
         />
       );
     },
-    [properties, settingsButtonHandle, Image, numberOfColumns, openViewer, cachedPhotos],
+    [
+      properties,
+      settingsButtonHandle,
+      Image,
+      numberOfColumns,
+      openViewer,
+      cachedPhotos,
+    ],
   );
 
   const ItemSeparator = useCallback(() => {

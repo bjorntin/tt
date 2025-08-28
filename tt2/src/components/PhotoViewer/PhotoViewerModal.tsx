@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Modal, View, StyleSheet, SafeAreaView, StatusBar, Platform, Animated } from "react-native";
+import {
+  Modal,
+  View,
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  Animated,
+} from "react-native";
 import { PhotoViewerModalProps } from "./types";
 import { PhotoViewerImage } from "./PhotoViewerImage";
 import { GestureHandler } from "./GestureHandler";
@@ -52,7 +60,6 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
     }
   }, [currentPhoto]);
 
-
   const handleSwipeLeft = () => {
     onSwipeLeft?.();
   };
@@ -94,7 +101,6 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
               isActive={true}
               onLoad={() => setImageLoading(false)}
               onError={(error) => {
-                console.warn("Failed to load image:", currentPhoto.uri, error);
                 setImageLoading(false);
               }}
             />
