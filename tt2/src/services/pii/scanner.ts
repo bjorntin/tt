@@ -169,3 +169,19 @@ export async function registerBackgroundTask() {
     // Failed to register task
   }
 }
+
+/**
+ * Resets the status of all images to 'pending' to allow a full rescan.
+ */
+export async function rescanAllPhotos() {
+  try {
+    await db.execAsync("UPDATE images SET status = 'pending';");
+    // eslint-disable-next-line no-console
+    console.log(
+      "[SCANNER] All images have been reset to 'pending' for rescan.",
+    );
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("[SCANNER] Failed to reset images for rescan:", error);
+  }
+}

@@ -22,6 +22,7 @@ export function FocusableImage({
   nextFocusDown,
   nextFocusLeft,
   nextFocusRight,
+  originalUri,
 }: ImageViewProps & TouchableOpacityProps) {
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
@@ -36,7 +37,11 @@ export function FocusableImage({
         nextFocusRight={nextFocusRight}
         activeOpacity={0.5}
       >
-        <ImageComponent uri={uri} itemSize={itemSize} />
+        <ImageComponent
+          uri={uri}
+          itemSize={itemSize}
+          originalUri={originalUri}
+        />
       </TouchableOpacity>
       {isFocused && (
         <FocusBox

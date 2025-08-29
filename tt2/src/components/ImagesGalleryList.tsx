@@ -5,9 +5,6 @@ import { useMediaLibraryPhotos } from "@/providers/MediaLibraryPhotosProvider";
 import { Dimensions } from "@/providers/ScreenDimensionsProvider";
 import { useCallback, useMemo } from "react";
 import { Platform, StyleSheet, View, ViewStyle } from "react-native";
-import { FocusableImage } from "./image/FocusableImage";
-import { ImageComponent } from "./image/ImageComponent";
-import { NoPhotosMessage } from "./NoPhotosMessage";
 import { EmptyGalleryList } from "./EmptyGalleryList";
 import { SplashScreen } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
@@ -15,6 +12,8 @@ import { scaledPixels } from "@/hooks/useScale";
 import { getHandle, useFocusRefs } from "@/providers/FocusRefProvider";
 import { usePhotoViewer } from "@/hooks/usePhotoViewer";
 import { PhotoViewerModal } from "./PhotoViewer";
+import { NoPhotosMessage } from "./NoPhotosMessage";
+import { GalleryImage } from "./image/GalleryImage";
 
 /**
  * Helper definitions - images gallery list props
@@ -38,16 +37,12 @@ export const ImagesGalleryList = ({
   galleryGap,
   style,
 }: ImagesGalleryListProps) => {
-  // Obtain data from providers
   const focusRefs = useFocusRefs();
   const settingsButtonHandle = getHandle(focusRefs["settings"]);
-
   const { cachedPhotos, cachedPhotosLoadingState } = useCachedPhotos();
   const { mediaLibraryPhotos, mediaLibraryLoadingState } =
     useMediaLibraryPhotos();
   const { offscreenDrawDistanceWindowSize } = useGalleryUISettings();
-
-  // Photo viewer state management
   const {
     isVisible: photoViewerVisible,
     currentIndex: photoViewerIndex,
@@ -59,9 +54,6 @@ export const ImagesGalleryList = ({
     goToPrevious,
   } = usePhotoViewer();
 
-  /**
-   * Helper functions - properties calculation
-   */
   const calculateSingleImageSize = useCallback(() => {
     const effectiveWidth =
       dimensions.width - (numberOfColumns + 1) * galleryGap;
@@ -75,9 +67,6 @@ export const ImagesGalleryList = ({
     [dimensions, offscreenDrawDistanceWindowSize],
   );
 
-  /**
-   * List properties - a dynamically updated values based on gallery settings and screen dimensions
-   */
   const properties = useMemo(
     () => ({
       singleImageSize: calculateSingleImageSize(),
@@ -86,20 +75,13 @@ export const ImagesGalleryList = ({
     [calculateSingleImageSize, calculateOffscreenDrawDistanceFromWindowSize],
   );
 
-  const Image = Platform.isTV ? FocusableImage : ImageComponent;
-
-  // Determine if we should show the "No Photos" message
   const shouldShowNoPhotosMessage =
     mediaLibraryLoadingState === "COMPLETED" && mediaLibraryPhotos.length === 0;
 
-  // Determine if we should show loading skeletons
   const shouldShowLoadingSkeletons =
     mediaLibraryLoadingState !== "COMPLETED" ||
     (mediaLibraryPhotos.length > 0 && cachedPhotosLoadingState !== "COMPLETED");
 
-  /**
-   * Helper components - empty list placeholder
-   */
   const ListEmptyComponent = useCallback(() => {
     if (shouldShowNoPhotosMessage) {
       return <NoPhotosMessage />;
@@ -123,9 +105,6 @@ export const ImagesGalleryList = ({
     numberOfColumns,
   ]);
 
-  /**
-   * Helper components - list render items
-   */
   const renderItem = useCallback(
     ({
       item,
@@ -134,34 +113,24 @@ export const ImagesGalleryList = ({
       item: (typeof cachedPhotos)[number];
       index: number;
     }) => {
-      // Since only TV uses FocusableImage component, only TV has focusable props here
-      const focusProps = Platform.isTV
-        ? {
-            nextFocusLeft:
-              index % numberOfColumns === 0 ? settingsButtonHandle : undefined,
-            nextFocusUp:
-              index < numberOfColumns ? settingsButtonHandle : undefined,
-          }
-        : {};
-
-      // Handle opening photo viewer
-      const handlePress = () => {
-        openViewer(index, cachedPhotos);
+      const handleOpenViewer = (idx: number) => {
+        openViewer(idx, cachedPhotos);
       };
 
       return (
-        <Image
-          uri={item.cachedPhotoUri}
+        <GalleryImage
+          item={item}
+          index={index}
+          numberOfColumns={numberOfColumns}
+          settingsButtonHandle={settingsButtonHandle ?? null}
           itemSize={properties.singleImageSize}
-          onPress={handlePress}
-          {...focusProps}
+          openViewer={handleOpenViewer}
         />
       );
     },
     [
-      properties,
+      properties.singleImageSize,
       settingsButtonHandle,
-      Image,
       numberOfColumns,
       openViewer,
       cachedPhotos,
@@ -183,15 +152,10 @@ export const ImagesGalleryList = ({
     }, 100);
   }, []);
 
-  /**
-   * Main list structure
-   *
-   * We wrap the list inside an additional View to enable styling the list
-   */
   return (
     <View style={[styles.listContainer, style]}>
       <FlashList
-        key={mediaLibraryLoadingState} // Temporary solution to prevent empty list crash
+        key={mediaLibraryLoadingState}
         data={cachedPhotos}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
@@ -205,18 +169,15 @@ export const ImagesGalleryList = ({
             paddingTop: Platform.isTV ? scaledPixels(20) : 0,
           }),
         }}
-        /**
-         * @see https://shopify.github.io/flash-list/docs/usage#drawdistance
-         */
         drawDistance={properties.listOffscreenDrawDistance}
         ItemSeparatorComponent={ItemSeparator}
         ListEmptyComponent={ListEmptyComponent}
         onLoad={handleLoad}
         showsVerticalScrollIndicator={false}
         CellRendererComponent={(props) => {
-          const { style, children, ...rest } = props;
+          const { style: cellStyle, children, ...rest } = props;
           return (
-            <View style={style} {...rest}>
+            <View style={cellStyle} {...rest}>
               {children}
             </View>
           );
@@ -224,7 +185,6 @@ export const ImagesGalleryList = ({
         disableAutoLayout={true}
       />
 
-      {/* Photo Viewer Modal */}
       <PhotoViewerModal
         visible={photoViewerVisible}
         currentIndex={photoViewerIndex}
@@ -238,7 +198,6 @@ export const ImagesGalleryList = ({
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   listContainer: {
     flex: 1,

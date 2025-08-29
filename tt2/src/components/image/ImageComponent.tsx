@@ -9,9 +9,21 @@ import { IMAGE_NATIVE_PRESET } from "@/config/config";
  * A simple proxy component which renders either ExpoImageComponent or RNImageComponent, depending on the configuration
  */
 
-export function ImageComponent({ uri, itemSize, onPress }: ImageViewProps) {
+export function ImageComponent({
+  uri,
+  itemSize,
+  onPress,
+  originalUri,
+}: ImageViewProps) {
   const Image =
     IMAGE_NATIVE_PRESET === "expo" ? ExpoImageComponent : RNImageComponent;
 
-  return <Image uri={uri} itemSize={itemSize} onPress={onPress} />;
+  return (
+    <Image
+      uri={uri}
+      itemSize={itemSize}
+      onPress={onPress}
+      originalUri={originalUri}
+    />
+  );
 }

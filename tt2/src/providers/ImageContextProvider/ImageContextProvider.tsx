@@ -18,12 +18,16 @@ const db = SQLite.openDatabaseSync("pii-scanner.db");
 
 // Define the shape of the context data
 type ImageContextData = {
-  isUnlocked: boolean;
-  toggleUnlock: () => void;
+  unlockedUris: string[];
+  unlockImage: (uri: string) => void;
+  lockAllImages: () => void;
+  securityMode: boolean;
+  toggleSecurityMode: () => void;
   scannerProgress: {
     processed: number;
     total: number;
   };
+  getImageStatus: (uri: string) => Promise<string | null>;
   updateScannerProgress: () => Promise<void>;
 };
 
@@ -43,7 +47,11 @@ type ImageContextProviderProps = {
 export const ImageContextProvider = ({
   children,
 }: ImageContextProviderProps) => {
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [unlockedUris, setUnlockedUris] = useState<string[]>([]);
+  const [securityMode, setSecurityMode] = useState(true);
+  const [imageStatuses, setImageStatuses] = useState<Map<string, string>>(
+    new Map(),
+  );
   const [scannerProgress, setScannerProgress] = useState({
     processed: 0,
     total: 0,
@@ -94,14 +102,41 @@ export const ImageContextProvider = ({
     }, [updateScannerProgress]),
   );
 
-  const toggleUnlock = () => {
-    setIsUnlocked((prev) => !prev);
+  const getImageStatus = async (uri: string): Promise<string | null> => {
+    try {
+      const result = await db.getFirstAsync<{ status: string }>(
+        "SELECT status FROM images WHERE uri = ?;",
+        [uri],
+      );
+      return result?.status ?? null;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Error fetching PII status:", error);
+      return null;
+    }
+  };
+
+  const unlockImage = (uri: string) => {
+    setUnlockedUris((prev) => [...prev, uri]);
+  };
+
+  const lockAllImages = () => {
+    setUnlockedUris([]);
+  };
+
+  const toggleSecurityMode = () => {
+    setSecurityMode((prev) => !prev);
+    lockAllImages();
   };
 
   const value = {
-    isUnlocked,
-    toggleUnlock,
+    unlockedUris,
+    unlockImage,
+    lockAllImages,
+    securityMode,
+    toggleSecurityMode,
     scannerProgress,
+    getImageStatus,
     updateScannerProgress,
   };
 

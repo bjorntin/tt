@@ -41,7 +41,7 @@ export const ImagesGalleryHeader = ({
   // Dependencies - photos cache state (for number of loaded items in subtitle text) & gallery settings
   const { cachedPhotos, cachedPhotosLoadingState } = useCachedPhotos();
   const { galleryGap } = useGalleryUISettings();
-  const { isUnlocked, toggleUnlock } = useImageContext();
+  const { securityMode, toggleSecurityMode } = useImageContext();
 
   // Set up default subtitle text if no subtitle is explicitely define
   const subtitleText =
@@ -75,13 +75,13 @@ export const ImagesGalleryHeader = ({
             />
           </Link>
           <IconButton
-            iconSource={
-              isUnlocked
-                ? require("@/assets/images/settings-icon.png") // Placeholder for 'unlocked' icon
-                : require("@/assets/images/settings-icon.png") // Placeholder for 'locked' icon
-            }
+            iconSource={require("@/assets/svg/fa-lock.svg")}
             animate={Platform.isTV}
-            onPress={toggleUnlock}
+            onPress={toggleSecurityMode}
+            iconStyle={{
+              ...styles.icon,
+              tintColor: securityMode ? colors.pink : colors.green,
+            }}
           />
         </View>
         {Cache.isCompleted(cachedPhotosLoadingState) && (
@@ -106,18 +106,18 @@ export const ImagesGalleryHeader = ({
         <IconButton
           iconSource={require("@/assets/images/settings-icon.png")}
           style={styles.settingsButtonMobile}
-          iconStyle={styles.settingsButtonIconMobile}
+          iconStyle={{ ...styles.icon, ...styles.settingsButtonIconMobile }}
         />
       </Link>
       <IconButton
-        iconSource={
-          isUnlocked
-            ? require("@/assets/images/settings-icon.png") // Placeholder for 'unlocked' icon
-            : require("@/assets/images/settings-icon.png") // Placeholder for 'locked' icon
-        }
-        onPress={toggleUnlock}
+        iconSource={require("@/assets/svg/fa-lock.svg")}
+        onPress={toggleSecurityMode}
         style={styles.settingsButtonMobile}
-        iconStyle={styles.settingsButtonIconMobile}
+        iconStyle={{
+          ...styles.icon,
+          ...styles.settingsButtonIconMobile,
+          tintColor: securityMode ? colors.pink : colors.green,
+        }}
       />
     </View>
   );
@@ -183,5 +183,9 @@ const styles = StyleSheet.create({
   },
   settingsButtonIconMobile: {
     tintColor: colors.white,
+  },
+  icon: {
+    width: scaledPixels(24),
+    height: scaledPixels(24),
   },
 });

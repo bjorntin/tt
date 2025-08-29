@@ -1,17 +1,27 @@
-import { memo } from "react";
+import { memo, useState, useEffect } from "react";
 import { Image as RNImage, StyleSheet, TouchableOpacity } from "react-native";
 import { ImageViewProps } from "./types";
-import { usePiiStatus } from "@/hooks/usePiiStatus";
 import { useImageContext } from "@/providers/ImageContextProvider/ImageContextProvider";
 
 export const RNImageComponent = memo(function RNImageComponent({
   uri,
   itemSize,
   onPress,
+  originalUri,
 }: ImageViewProps) {
-  const piiStatus = usePiiStatus(uri);
-  const { isUnlocked } = useImageContext();
-  const shouldBlur = piiStatus === "pii_found" && !isUnlocked;
+  const { unlockedUris, getImageStatus } = useImageContext();
+  const [piiStatus, setPiiStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      const status = await getImageStatus(originalUri || uri);
+      setPiiStatus(status);
+    };
+    fetchStatus();
+  }, [getImageStatus, originalUri, uri]);
+
+  const shouldBlur =
+    piiStatus === "pii_found" && !unlockedUris.includes(originalUri || uri);
 
   const ImageComponent = (
     <RNImage

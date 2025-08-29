@@ -3,23 +3,31 @@ import { DatabaseDebugView } from "@/components/DatabaseDebugView";
 import { HeaderText } from "@/components/HeaderText";
 import { colors } from "@/config/colors";
 import { Button } from "@/components/Button";
-import { runScannerBatch } from "@/services/pii/scanner";
+import { runScannerBatch, rescanAllPhotos } from "@/services/pii/scanner";
 import { Link } from "expo-router";
 import { useImageContext } from "@/providers/ImageContextProvider/ImageContextProvider";
 
 export default function DebugScreen() {
   const { updateScannerProgress } = useImageContext();
 
-  const handlePress = async () => {
+  const handleRunScan = async () => {
     await runScannerBatch();
+    await updateScannerProgress();
+  };
+
+  const handleRescan = async () => {
+    await rescanAllPhotos();
     await updateScannerProgress();
   };
 
   return (
     <View style={styles.container}>
       <HeaderText>PII Scanner Database</HeaderText>
-      <Button onPress={handlePress} style={styles.button}>
-        Force Run Full Scan & Refresh
+      <Button onPress={handleRunScan} style={styles.button}>
+        Force Run Scan Batch
+      </Button>
+      <Button onPress={handleRescan} style={styles.button}>
+        Rescan All Photos
       </Button>
       <Link href="/flagged" asChild>
         <Button style={styles.button}>View Flagged Photos</Button>

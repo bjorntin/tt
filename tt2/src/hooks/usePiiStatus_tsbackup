@@ -1,0 +1,41 @@
+// import { useState, useEffect } from "react";
+// import * as SQLite from "expo-sqlite";
+
+// // Use the synchronous factory method to open the database.
+// const db = SQLite.openDatabaseSync("pii-scanner.db");
+
+// /**
+//  * Custom hook to get the PII status of an image by URI
+//  * @param uri - The image URI to check
+//  * @returns The PII status: "pii_found", "no_pii", "pending", or null if not found
+//  */
+// export const usePiiStatus = (uri: string): string | null => {
+//   const [status, setStatus] = useState<string | null>(null);
+
+//   useEffect(() => {
+//     const fetchStatus = async () => {
+//       try {
+//         const result = await db.getFirstAsync<{ status: string }>(
+//           "SELECT status FROM images WHERE uri = ?;",
+//           [uri]
+//         );
+
+//         if (result && result.status) {
+//           setStatus(result.status);
+//         } else {
+//           setStatus(null);
+//         }
+//       } catch (error) {
+//         // eslint-disable-next-line no-console
+//         console.error("Error fetching PII status:", error);
+//         setStatus(null);
+//       }
+//     };
+
+//     if (uri) {
+//       fetchStatus();
+//     }
+//   }, [uri]);
+
+//   return status;
+// };
