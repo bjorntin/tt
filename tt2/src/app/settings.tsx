@@ -10,10 +10,11 @@ import { BUILD_TYPE } from "@/config/constants";
 import { scaledPixels } from "@/hooks/useScale";
 import { useCachedPhotos } from "@/providers/CachedPhotosProvider";
 import { useGalleryUISettings } from "@/providers/GalleryUISettingsProvider";
+import { useImageContext } from "@/providers/ImageContextProvider/ImageContextProvider";
 import { useMediaLibraryPhotos } from "@/providers/MediaLibraryPhotosProvider";
 import { usePerformanceLogs } from "@/utils/logPerformance";
 import { useTimersData } from "@/utils/useMeasureImageLoadTime";
-import { useNavigation } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -38,6 +39,7 @@ export default function SettingsLayout() {
   } = useMediaLibraryPhotos();
   const { cachedPhotos, cachedPhotosLoadingState, recalculateCachedPhotos } =
     useCachedPhotos();
+  const { scannerProgress } = useImageContext();
 
   const { resetTimers, timersData } = useTimersData();
   const { resetLogs, performanceLogs } = usePerformanceLogs();
@@ -86,6 +88,13 @@ export default function SettingsLayout() {
           </Button>
         </View>
 
+        <View style={styles.optionsContainer}>
+          <HeaderText>PII Scanner</HeaderText>
+          <Label>
+            {`Scan Progress: ${scannerProgress.processed} / ${scannerProgress.total} images`}
+          </Label>
+        </View>
+
         {BUILD_TYPE === "dev" && (
           <>
             <View style={styles.optionsContainer}>
@@ -130,6 +139,13 @@ export default function SettingsLayout() {
             </View>
           </>
         )}
+
+        <View style={styles.optionsContainer}>
+          <HeaderText>Debug Tools</HeaderText>
+          <Link href="/debug" asChild>
+            <Button>View PII Scanner Database</Button>
+          </Link>
+        </View>
 
         <SWMLogo />
 

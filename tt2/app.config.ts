@@ -16,6 +16,9 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier,
+      infoPlist: {
+        UIBackgroundModes: ["fetch", "processing"],
+      },
     },
     android: {
       adaptiveIcon: {
@@ -37,6 +40,7 @@ export default {
     },
     plugins: [
       "expo-router",
+      "expo-background-fetch",
       [
         "expo-splash-screen",
         {

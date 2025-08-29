@@ -2,6 +2,8 @@ import { Image as ExpoImage, ImageProps } from "expo-image";
 import { memo } from "react";
 import { StyleSheet } from "react-native";
 import { ImageViewProps } from "./types";
+import { usePiiStatus } from "@/hooks/usePiiStatus";
+import { useImageContext } from "@/providers/ImageContextProvider/ImageContextProvider";
 
 /**
  * Similar to ExpoImageComponent, but with a delay before rendering the image.
@@ -13,6 +15,10 @@ export const DelayedImageComponent = memo(function DelayedImageComponent({
   placeholder,
   style,
 }: ImageViewProps & Pick<ImageProps, "placeholder" | "style">) {
+  const piiStatus = usePiiStatus(uri);
+  const { isUnlocked } = useImageContext();
+  const shouldBlur = piiStatus === "pii_found" && !isUnlocked;
+
   return (
     <ExpoImage
       source={{ uri, width: 1000, height: 1000 }}
@@ -23,6 +29,7 @@ export const DelayedImageComponent = memo(function DelayedImageComponent({
       transition={500}
       style={[styles.image, { width: itemSize, height: itemSize }, style]}
       placeholder={placeholder}
+      blurRadius={shouldBlur ? 15 : 0}
     />
   );
 });

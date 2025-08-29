@@ -3,6 +3,7 @@ import { FONT_MEDIUM, FONT_REGULAR, IS_WIDE_SCREEN } from "@/config/constants";
 import { scaledPixels } from "@/hooks/useScale";
 import { useCachedPhotos, Cache } from "@/providers/CachedPhotosProvider";
 import { useGalleryUISettings } from "@/providers/GalleryUISettingsProvider";
+import { useImageContext } from "@/providers/ImageContextProvider/ImageContextProvider";
 import { useScreenDimensions } from "@/providers/ScreenDimensionsProvider/ScreenDimensionsProvider";
 import { Link } from "expo-router";
 import { Platform, StyleSheet, Text, View } from "react-native";
@@ -40,6 +41,7 @@ export const ImagesGalleryHeader = ({
   // Dependencies - photos cache state (for number of loaded items in subtitle text) & gallery settings
   const { cachedPhotos, cachedPhotosLoadingState } = useCachedPhotos();
   const { galleryGap } = useGalleryUISettings();
+  const { isUnlocked, toggleUnlock } = useImageContext();
 
   // Set up default subtitle text if no subtitle is explicitely define
   const subtitleText =
@@ -72,6 +74,15 @@ export const ImagesGalleryHeader = ({
               ref={focusRefs["settings"]}
             />
           </Link>
+          <IconButton
+            iconSource={
+              isUnlocked
+                ? require("@/assets/images/settings-icon.png") // Placeholder for 'unlocked' icon
+                : require("@/assets/images/settings-icon.png") // Placeholder for 'locked' icon
+            }
+            animate={Platform.isTV}
+            onPress={toggleUnlock}
+          />
         </View>
         {Cache.isCompleted(cachedPhotosLoadingState) && (
           <Text style={styles.headerSubtitleWideScreen}>{subtitleText}</Text>
@@ -98,6 +109,16 @@ export const ImagesGalleryHeader = ({
           iconStyle={styles.settingsButtonIconMobile}
         />
       </Link>
+      <IconButton
+        iconSource={
+          isUnlocked
+            ? require("@/assets/images/settings-icon.png") // Placeholder for 'unlocked' icon
+            : require("@/assets/images/settings-icon.png") // Placeholder for 'locked' icon
+        }
+        onPress={toggleUnlock}
+        style={styles.settingsButtonMobile}
+        iconStyle={styles.settingsButtonIconMobile}
+      />
     </View>
   );
 };

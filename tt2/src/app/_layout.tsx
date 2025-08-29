@@ -6,6 +6,7 @@ import { MediaLibraryPhotosProvider } from "@/providers/MediaLibraryPhotosProvid
 import { ScreenDimensionsProvider } from "@/providers/ScreenDimensionsProvider";
 import "@/utils/logger";
 import { FocusRefProvider } from "@/providers/FocusRefProvider";
+import { ImageContextProvider } from "@/providers/ImageContextProvider/ImageContextProvider";
 
 /**
  * We call `SplashScreen.hide` in the `index.tsx` file once the app layout is ready.
@@ -18,16 +19,18 @@ SplashScreen.setOptions({
 
 export default function RootLayout() {
   return (
-    <FocusRefProvider>
-      <ScreenDimensionsProvider>
-        <GalleryUISettingsProvider>
-          <MediaLibraryPhotosProvider>
-            <CachedPhotosProvider>
-              <Stack screenOptions={{ headerShown: false }} />
-            </CachedPhotosProvider>
-          </MediaLibraryPhotosProvider>
-        </GalleryUISettingsProvider>
-      </ScreenDimensionsProvider>
-    </FocusRefProvider>
+    <ImageContextProvider>
+      <FocusRefProvider>
+        <ScreenDimensionsProvider>
+          <GalleryUISettingsProvider>
+            <MediaLibraryPhotosProvider>
+              <CachedPhotosProvider>
+                <Stack screenOptions={{ headerShown: false }} />
+              </CachedPhotosProvider>
+            </MediaLibraryPhotosProvider>
+          </GalleryUISettingsProvider>
+        </ScreenDimensionsProvider>
+      </FocusRefProvider>
+    </ImageContextProvider>
   );
 }
