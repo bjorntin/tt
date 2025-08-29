@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   buttonIcon: {
     width: scaledPixels(52),
     height: scaledPixels(52),
-    tintColor: colors.blue,
+    tintColor: colors.black,
     filter:
       Platform.OS === "web"
         ? `invert(4%) sepia(100%) saturate(7000%) hue-rotate(220deg)`

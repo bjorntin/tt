@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import { CachedPhotosProvider } from "@/providers/CachedPhotosProvider";
 import { GalleryUISettingsProvider } from "@/providers/GalleryUISettingsProvider";
 import { MediaLibraryPhotosProvider } from "@/providers/MediaLibraryPhotosProvider";
@@ -26,6 +27,7 @@ export default function RootLayout() {
             <MediaLibraryPhotosProvider>
               <CachedPhotosProvider>
                 <Stack screenOptions={{ headerShown: false }} />
+                <StatusBar style="light" />
               </CachedPhotosProvider>
             </MediaLibraryPhotosProvider>
           </GalleryUISettingsProvider>

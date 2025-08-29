@@ -13,6 +13,7 @@ export function ImageComponent({
   uri,
   itemSize,
   onPress,
+  onLongPress,
   originalUri,
 }: ImageViewProps) {
   const Image =
@@ -23,6 +24,7 @@ export function ImageComponent({
       uri={uri}
       itemSize={itemSize}
       onPress={onPress}
+      onLongPress={onLongPress}
       originalUri={originalUri}
     />
   );

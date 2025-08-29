@@ -6,7 +6,7 @@ import { useGalleryUISettings } from "@/providers/GalleryUISettingsProvider";
 import { useImageContext } from "@/providers/ImageContextProvider/ImageContextProvider";
 import { useScreenDimensions } from "@/providers/ScreenDimensionsProvider/ScreenDimensionsProvider";
 import { Link } from "expo-router";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Alert, Platform, StyleSheet, Text, View } from "react-native";
 import { Loader, LoaderPlaceholder } from "./Loader";
 import { IconButton } from "./IconButton";
 import { useFocusRefs } from "@/providers/FocusRefProvider";
@@ -17,7 +17,7 @@ import { useFocusRefs } from "@/providers/FocusRefProvider";
 export type ImagesGalleryHeaderProps = {
   /**
    * Main text on the header
-   * @default "Your photos"
+   * @default "All photos"
    */
   title?: string;
   /**
@@ -31,7 +31,7 @@ export type ImagesGalleryHeaderProps = {
  * ImagesGalleryHeader component
  */
 export const ImagesGalleryHeader = ({
-  title = "Your photos",
+  title = "All photos",
   subtitle,
 }: ImagesGalleryHeaderProps) => {
   // Screen size for some responsivness
@@ -43,11 +43,33 @@ export const ImagesGalleryHeader = ({
   const { galleryGap } = useGalleryUISettings();
   const { securityMode, toggleSecurityMode } = useImageContext();
 
+  // Custom toggle function with confirmation for unlocking
+  const handleSecurityModeToggle = () => {
+    if (securityMode) {
+      // Currently ON, user wants to turn OFF - show confirmation
+      Alert.alert(
+        "Disable Security Mode",
+        "This will show all images clearly, including those flagged as sensitive. Are you sure?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Disable",
+            style: "destructive",
+            onPress: () => toggleSecurityMode(),
+          },
+        ],
+      );
+    } else {
+      // Currently OFF, user wants to turn ON - no confirmation needed
+      toggleSecurityMode();
+    }
+  };
+
   // Set up default subtitle text if no subtitle is explicitely define
   const subtitleText =
     subtitle ??
     (IS_WIDE_SCREEN
-      ? `${cachedPhotos.length} items in galery`
+      ? `${cachedPhotos.length} items in gallery`
       : `${cachedPhotos.length} items`);
 
   // Compose styles based on the launch platform
@@ -72,12 +94,13 @@ export const ImagesGalleryHeader = ({
               iconSource={require("@/assets/images/settings-icon.png")}
               animate={Platform.isTV}
               ref={focusRefs["settings"]}
+              iconStyle={styles.icon}
             />
           </Link>
           <IconButton
             iconSource={require("@/assets/svg/fa-lock.svg")}
             animate={Platform.isTV}
-            onPress={toggleSecurityMode}
+            onPress={handleSecurityModeToggle}
             iconStyle={{
               ...styles.icon,
               tintColor: securityMode ? colors.pink : colors.green,
@@ -106,12 +129,15 @@ export const ImagesGalleryHeader = ({
         <IconButton
           iconSource={require("@/assets/images/settings-icon.png")}
           style={styles.settingsButtonMobile}
-          iconStyle={{ ...styles.icon, ...styles.settingsButtonIconMobile }}
+          iconStyle={{
+            ...styles.icon,
+            ...styles.settingsButtonIconMobile,
+          }}
         />
       </Link>
       <IconButton
         iconSource={require("@/assets/svg/fa-lock.svg")}
-        onPress={toggleSecurityMode}
+        onPress={handleSecurityModeToggle}
         style={styles.settingsButtonMobile}
         iconStyle={{
           ...styles.icon,
@@ -135,7 +161,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerMobile: {
-    backgroundColor: colors.blue,
+    backgroundColor: colors.black,
     padding: scaledPixels(16),
     borderBottomLeftRadius: scaledPixels(16),
     borderBottomRightRadius: scaledPixels(16),
@@ -170,22 +196,22 @@ const styles = StyleSheet.create({
     gap: scaledPixels(20),
   },
   headerTextWideScreen: {
-    color: colors.blue,
+    color: colors.black,
     fontSize: scaledPixels(40),
     fontWeight: "600",
   },
   headerSubtitleWideScreen: {
-    color: colors.blue,
+    color: colors.black,
     fontSize: scaledPixels(20),
   },
   settingsButtonMobile: {
-    backgroundColor: colors.blue,
+    backgroundColor: colors.black,
   },
   settingsButtonIconMobile: {
     tintColor: colors.white,
   },
   icon: {
-    width: scaledPixels(24),
-    height: scaledPixels(24),
+    width: scaledPixels(28),
+    height: scaledPixels(32),
   },
 });

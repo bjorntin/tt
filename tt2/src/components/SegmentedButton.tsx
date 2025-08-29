@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     borderRadius: scaledPixels(8),
   },
   selectedButton: {
-    backgroundColor: colors.blue,
+    backgroundColor: colors.black,
   },
   firstButton: {
     borderTopLeftRadius: scaledPixels(8),

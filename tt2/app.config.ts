@@ -23,7 +23,7 @@ export default {
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
-        backgroundColor: "#001A72",
+        backgroundColor: "#000000ff",
       },
       edgeToEdgeEnabled: true,
       permissions: [
@@ -47,7 +47,7 @@ export default {
           image: "./assets/images/splash-icon.png",
           imageWidth: 108,
           resizeMode: "contain",
-          backgroundColor: "#001A72",
+          backgroundColor: "#000000ff",
         },
       ],
       [

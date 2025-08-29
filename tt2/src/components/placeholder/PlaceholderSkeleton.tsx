@@ -58,7 +58,7 @@ export const PlaceholderSkeleton = ({
     >
       <Svg width="100%" height="100%" viewBox="0 0 600 600">
         <Defs>
-          <SwmPattern color={colors.blue} />
+          <SwmPattern color={colors.black} />
         </Defs>
         <Rect x="0" y="0" width="100%" height="100%" fill="url(#swmpattern)" />
       </Svg>
@@ -68,7 +68,7 @@ export const PlaceholderSkeleton = ({
 
 const styles = StyleSheet.create({
   skeleton: {
-    backgroundColor: colors.blue,
+    backgroundColor: colors.black,
     borderRadius: scaledPixels(4),
     margin: MARGIN,
     alignItems: "center",

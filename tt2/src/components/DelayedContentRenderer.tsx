@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   countdownText: {
     fontSize: scaledPixels(24),
     fontWeight: "bold",
-    color: colors.blue,
+    color: colors.black,
     fontFamily: FONT_REGULAR,
   },
 });

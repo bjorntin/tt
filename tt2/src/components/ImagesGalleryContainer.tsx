@@ -36,7 +36,7 @@ export const ImagesGalleryContainer = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: IS_WIDE_SCREEN ? colors.white : colors.blue,
+    backgroundColor: IS_WIDE_SCREEN ? colors.white : colors.black,
   },
   imageContainer: {
     flex: 1,

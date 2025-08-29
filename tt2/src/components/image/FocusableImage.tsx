@@ -22,6 +22,7 @@ export function FocusableImage({
   nextFocusDown,
   nextFocusLeft,
   nextFocusRight,
+  onLongPress,
   originalUri,
 }: ImageViewProps & TouchableOpacityProps) {
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -40,6 +41,7 @@ export function FocusableImage({
         <ImageComponent
           uri={uri}
           itemSize={itemSize}
+          onLongPress={onLongPress}
           originalUri={originalUri}
         />
       </TouchableOpacity>

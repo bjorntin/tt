@@ -7,9 +7,10 @@ export const RNImageComponent = memo(function RNImageComponent({
   uri,
   itemSize,
   onPress,
+  onLongPress,
   originalUri,
 }: ImageViewProps) {
-  const { unlockedUris, getImageStatus } = useImageContext();
+  const { unlockedUris, getImageStatus, securityMode } = useImageContext();
   const [piiStatus, setPiiStatus] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,7 +22,9 @@ export const RNImageComponent = memo(function RNImageComponent({
   }, [getImageStatus, originalUri, uri]);
 
   const shouldBlur =
-    piiStatus === "pii_found" && !unlockedUris.includes(originalUri || uri);
+    securityMode &&
+    piiStatus === "pii_found" &&
+    !unlockedUris.includes(originalUri || uri);
 
   const ImageComponent = (
     <RNImage
@@ -34,7 +37,11 @@ export const RNImageComponent = memo(function RNImageComponent({
 
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+      <TouchableOpacity
+        onPress={onPress}
+        onLongPress={onLongPress}
+        activeOpacity={0.8}
+      >
         {ImageComponent}
       </TouchableOpacity>
     );

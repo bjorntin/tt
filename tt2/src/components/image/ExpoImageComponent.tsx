@@ -8,9 +8,10 @@ export const ExpoImageComponent = memo(function ExpoImageComponent({
   uri,
   itemSize,
   onPress,
+  onLongPress,
   originalUri,
 }: ImageViewProps) {
-  const { unlockedUris, getImageStatus } = useImageContext();
+  const { unlockedUris, getImageStatus, securityMode } = useImageContext();
   const [piiStatus, setPiiStatus] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,7 +23,9 @@ export const ExpoImageComponent = memo(function ExpoImageComponent({
   }, [getImageStatus, originalUri, uri]);
 
   const shouldBlur =
-    piiStatus === "pii_found" && !unlockedUris.includes(originalUri || uri);
+    securityMode &&
+    piiStatus === "pii_found" &&
+    !unlockedUris.includes(originalUri || uri);
 
   const ImageComponent = (
     <ExpoImage
@@ -39,7 +42,11 @@ export const ExpoImageComponent = memo(function ExpoImageComponent({
 
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+      <TouchableOpacity
+        onPress={onPress}
+        onLongPress={onLongPress}
+        activeOpacity={0.8}
+      >
         {ImageComponent}
       </TouchableOpacity>
     );

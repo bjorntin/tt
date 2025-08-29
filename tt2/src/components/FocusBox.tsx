@@ -69,6 +69,6 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     zIndex: 2,
-    borderColor: colors.blue,
+    borderColor: colors.black,
   },
 });

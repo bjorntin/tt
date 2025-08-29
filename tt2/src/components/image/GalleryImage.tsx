@@ -24,7 +24,8 @@ export const GalleryImage = ({
   itemSize,
   openViewer,
 }: GalleryImageProps) => {
-  const { unlockedUris, unlockImage, getImageStatus } = useImageContext();
+  const { unlockedUris, unlockImage, lockImage, getImageStatus, securityMode } =
+    useImageContext();
   const [piiStatus, setPiiStatus] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,7 +37,9 @@ export const GalleryImage = ({
   }, [getImageStatus, item.originalPhotoUri]);
 
   const isLocked =
-    piiStatus === "pii_found" && !unlockedUris.includes(item.originalPhotoUri);
+    securityMode &&
+    piiStatus === "pii_found" &&
+    !unlockedUris.includes(item.originalPhotoUri);
 
   const focusProps = Platform.isTV
     ? {
@@ -53,8 +56,8 @@ export const GalleryImage = ({
   const handlePress = () => {
     if (isLocked) {
       Alert.alert(
-        "Unlock Image",
-        "This image is flagged as potentially sensitive. Do you want to view it?",
+        "Locked Image",
+        "This image is flagged as potentially sensitive because {reason}. Do you want to unlock & view it?",
         [
           { text: "Cancel", style: "cancel" },
           {
@@ -71,6 +74,26 @@ export const GalleryImage = ({
     }
   };
 
+  const handleLongPress = () => {
+    // Only show lock option for unlocked images
+    if (!isLocked && securityMode && piiStatus === "pii_found") {
+      Alert.alert(
+        "Lock Image",
+        "This will re-lock the image and apply blurring again. Continue?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Lock",
+            style: "destructive",
+            onPress: () => {
+              lockImage(item.originalPhotoUri);
+            },
+          },
+        ],
+      );
+    }
+  };
+
   const Image = Platform.isTV ? FocusableImage : ImageComponent;
 
   return (
@@ -78,6 +101,7 @@ export const GalleryImage = ({
       uri={item.cachedPhotoUri}
       itemSize={itemSize}
       onPress={handlePress}
+      onLongPress={handleLongPress}
       originalUri={item.originalPhotoUri}
       {...focusProps}
     />

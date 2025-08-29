@@ -20,6 +20,7 @@ const db = SQLite.openDatabaseSync("pii-scanner.db");
 type ImageContextData = {
   unlockedUris: string[];
   unlockImage: (uri: string) => void;
+  lockImage: (uri: string) => void;
   lockAllImages: () => void;
   securityMode: boolean;
   toggleSecurityMode: () => void;
@@ -120,6 +121,12 @@ export const ImageContextProvider = ({
     setUnlockedUris((prev) => [...prev, uri]);
   };
 
+  const lockImage = (uri: string) => {
+    setUnlockedUris((prev) =>
+      prev.filter((unlockedUri) => unlockedUri !== uri),
+    );
+  };
+
   const lockAllImages = () => {
     setUnlockedUris([]);
   };
@@ -132,6 +139,7 @@ export const ImageContextProvider = ({
   const value = {
     unlockedUris,
     unlockImage,
+    lockImage,
     lockAllImages,
     securityMode,
     toggleSecurityMode,

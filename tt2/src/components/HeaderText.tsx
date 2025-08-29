@@ -32,7 +32,7 @@ export const HeaderText = ({
 
 const styles = StyleSheet.create({
   text: {
-    color: colors.blue,
+    color: colors.black,
     fontFamily: FONT_BOLD,
     marginBottom: scaledPixels(4),
     textAlign: "center",

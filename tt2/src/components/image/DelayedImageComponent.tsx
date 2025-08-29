@@ -1,6 +1,6 @@
 import { Image as ExpoImage, ImageProps } from "expo-image";
 import { memo, useState, useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { ImageViewProps } from "./types";
 import { useImageContext } from "@/providers/ImageContextProvider/ImageContextProvider";
 
@@ -13,9 +13,10 @@ export const DelayedImageComponent = memo(function DelayedImageComponent({
   itemSize,
   placeholder,
   style,
+  onLongPress,
   originalUri,
 }: ImageViewProps & Pick<ImageProps, "placeholder" | "style">) {
-  const { unlockedUris, getImageStatus } = useImageContext();
+  const { unlockedUris, getImageStatus, securityMode } = useImageContext();
   const [piiStatus, setPiiStatus] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,9 +28,11 @@ export const DelayedImageComponent = memo(function DelayedImageComponent({
   }, [getImageStatus, originalUri, uri]);
 
   const shouldBlur =
-    piiStatus === "pii_found" && !unlockedUris.includes(originalUri || uri);
+    securityMode &&
+    piiStatus === "pii_found" &&
+    !unlockedUris.includes(originalUri || uri);
 
-  return (
+  const imageComponent = (
     <ExpoImage
       source={{ uri, width: 1000, height: 1000 }}
       decodeFormat="rgb"
@@ -42,6 +45,16 @@ export const DelayedImageComponent = memo(function DelayedImageComponent({
       blurRadius={shouldBlur ? 15 : 0}
     />
   );
+
+  if (onLongPress) {
+    return (
+      <TouchableOpacity onLongPress={onLongPress} activeOpacity={1}>
+        {imageComponent}
+      </TouchableOpacity>
+    );
+  }
+
+  return imageComponent;
 });
 
 const styles = StyleSheet.create({

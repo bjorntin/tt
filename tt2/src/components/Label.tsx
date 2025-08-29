@@ -13,7 +13,7 @@ export const Label = ({ children }: LabelProps) => {
 const styles = StyleSheet.create({
   text: {
     fontVariant: ["tabular-nums"],
-    color: colors.blue,
+    color: colors.black,
     fontFamily: FONT_BOLD,
     fontSize: scaledPixels(16),
   },

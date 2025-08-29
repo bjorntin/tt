@@ -45,7 +45,7 @@ export const Button = ({
   onPress,
   ...props
 }: ButtonProps) => {
-  const backgroundColor = useSharedValue(invert ? "transparent" : colors.blue);
+  const backgroundColor = useSharedValue(invert ? "transparent" : colors.black);
   const pulseTransparency = useSharedValue(1);
 
   const pressWrapper = useCallback(
@@ -63,9 +63,12 @@ export const Button = ({
       );
       await onPress?.(e);
       pulseTransparency.value = withTiming(1, { duration: 300 });
-      backgroundColor.value = withTiming(invert ? "transparent" : colors.blue, {
-        duration: 200,
-      });
+      backgroundColor.value = withTiming(
+        invert ? "transparent" : colors.black,
+        {
+          duration: 200,
+        },
+      );
     },
     [backgroundColor, invert, onPress, pulseTransparency],
   );
@@ -120,7 +123,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   invertColor: {
-    color: colors.blue,
+    color: colors.black,
   },
   text: {
     color: colors.white,
