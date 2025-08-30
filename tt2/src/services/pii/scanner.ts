@@ -6,15 +6,16 @@ import * as BackgroundFetch from "expo-background-fetch";
 import { getBatteryStateAsync, BatteryState } from "expo-battery";
 import { getNetworkStateAsync, NetworkStateType } from "expo-network";
 
-// Use the synchronous factory method to open the database.
-const db = SQLite.openDatabaseSync("pii-scanner.db");
+// Use the asynchronous factory method to open the database.
+const db = SQLite.openDatabaseAsync("pii-scanner.db");
 
 /**
  * Initializes the database and creates the 'images' table if it doesn't exist.
- * This function now runs synchronously.
+ * This function now runs asynchronously.
  */
-export const setupDatabase = () => {
-  db.execSync(
+export const setupDatabase = async () => {
+  const database = await db;
+  await database.execAsync(
     "CREATE TABLE IF NOT EXISTS images (id INTEGER PRIMARY KEY AUTOINCREMENT, uri TEXT UNIQUE, status TEXT, findings TEXT);",
   );
 };
@@ -43,9 +44,10 @@ export const buildImageScanQueue = async () => {
 
     if (assets.assets.length > 0) {
       // Use a transaction to batch the inserts for better performance.
-      await db.withTransactionAsync(async () => {
+      const database = await db;
+      await database.withTransactionAsync(async () => {
         for (const asset of assets.assets) {
-          await db.runAsync(
+          await database.runAsync(
             "INSERT OR IGNORE INTO images (uri, status) VALUES (?, ?);",
             asset.uri,
             "pending",
@@ -68,7 +70,8 @@ export async function runScannerBatch() {
   console.log("--- Manual PII Scan Started ---");
   try {
     // 1. Fetch all 'pending' images from the database
-    const pendingImages = await db.getAllAsync<{ id: number; uri: string }>(
+    const database = await db;
+    const pendingImages = await database.getAllAsync<{ id: number; uri: string }>(
       "SELECT * FROM images WHERE status = ?;",
       "pending",
     );
@@ -88,7 +91,7 @@ export async function runScannerBatch() {
     for (const image of pendingImages) {
       // eslint-disable-next-line no-console
       console.log(`[SCANNER] Processing image ID: ${image.id}`);
-      await db.runAsync(
+      await database.runAsync(
         "UPDATE images SET status = ? WHERE id = ?;",
         "processing",
         image.id,
@@ -101,7 +104,7 @@ export async function runScannerBatch() {
       const hasPii = isTestImage || Math.random() > 0.95; // 5% chance for non-test images
       const newStatus = hasPii ? "pii_found" : "scanned_clean";
 
-      await db.runAsync(
+      await database.runAsync(
         "UPDATE images SET status = ? WHERE id = ?;",
         newStatus,
         image.id,
@@ -175,7 +178,8 @@ export async function registerBackgroundTask() {
  */
 export async function rescanAllPhotos() {
   try {
-    await db.execAsync("UPDATE images SET status = 'pending';");
+    const database = await db;
+    await database.execAsync("UPDATE images SET status = 'pending';");
     // eslint-disable-next-line no-console
     console.log(
       "[SCANNER] All images have been reset to 'pending' for rescan.",
