@@ -26,6 +26,11 @@
   "dependencies": {
     "@shopify/flash-list": "1.7.6",
     "expo": "53.0.22",
+    "@infinitered/react-native-mlkit-core": "^3.1.0",
+    "@infinitered/react-native-mlkit-document-scanner": "^3.1.0",
+    "@infinitered/react-native-mlkit-face-detection": "^3.1.0",
+    "@shopify/flash-list": "1.8.3",
+    "expo": "53.0.15",
     "expo-background-fetch": "^13.1.6",
     "expo-battery": "^9.1.4",
     "expo-constants": "^17.1.7",

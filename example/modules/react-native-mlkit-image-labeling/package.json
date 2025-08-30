@@ -1,0 +1,47 @@
+{
+  "name": "@infinitered/react-native-mlkit-image-labeling",
+  "version": "3.1.0",
+  "description": "MLKit Image Labeling for React Native with Expo",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "expo-module build",
+    "ci:build": "tsc",
+    "clean": "expo-module clean",
+    "lint": "expo-module lint",
+    "test": "../../scripts/test-module.sh",
+    "prepublishOnly": "expo-module prepublishOnly",
+    "expo-module": "expo-module"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "react-native-mlkit-image-labeling",
+    "RNMLKitImageLabeler"
+  ],
+  "repository": "https://www.github.com/infinitered/react-native-mlkit",
+  "bugs": {
+    "url": "https://www.github.com/infinitered/react-native-mlkit/issues"
+  },
+  "author": "Trevor Coleman <trevor@infinite.red> (https://www.github.com/trevor-coleman)",
+  "license": "MIT",
+  "homepage": "https://docs.infinite.red/react-native-mlkit/image-labeling",
+  "dependencies": {
+    "@infinitered/react-native-mlkit-core": "3.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "~18.3.12",
+    "expo-module-scripts": "^3.4.1",
+    "expo-modules-core": "~2.2.0"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  },
+  "expo": {
+    "autolinking": {
+      "nativeModulesDir": "../../modules"
+    }
+  }
+}

@@ -99,6 +99,11 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
             <PhotoViewerImage
               photo={currentPhoto}
               isActive={true}
+              onClose={onClose}
+              onNext={onSwipeLeft}
+              onPrevious={onSwipeRight}
+              hasNext={currentIndex < photos.length - 1}
+              hasPrevious={currentIndex > 0}
               onLoad={() => setImageLoading(false)}
               onError={(error) => {
                 setImageLoading(false);

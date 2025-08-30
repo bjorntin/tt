@@ -1,0 +1,13 @@
+[?9001h[?1004h[?25l[2J[m[H]0;C:\WINDOWS\system32\cmd.exe [?25h[?25lnode:internal/child_process:502
+      throw errnoException(err, 'kill');
+      ^[5;1HError: kill ENOSYS[90m
+    at ChildProcess.kill (node:internal/child_process:502:13)[m
+    at process.<anonymous> (C:\tt-ml\react-native-mlkit\node_modules\[4mexpo-module-scripts[24m\node_modules\[4mcommander[24m\index.js:573:14)[90m
+    at process.emit (node:events:517:28) [m{
+  errno: [33m-4054[m,
+  code: [32m'ENOSYS'[m,
+  syscall: [32m'kill'[m
+}
+[?25h
+Node.js v18.20.2
+[?9001l[?1004l
