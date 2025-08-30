@@ -7,10 +7,13 @@ import {
   StatusBar,
   Platform,
   Animated,
+  Text,
+  ScrollView,
 } from "react-native";
 import { PhotoViewerModalProps } from "./types";
 import { PhotoViewerImage } from "./PhotoViewerImage";
 import { GestureHandler } from "./GestureHandler";
+import { recognizeText } from "@/services/ocr/mlkit";
 
 export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
   visible,
@@ -24,6 +27,12 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
   const [fadeAnim] = useState(new Animated.Value(0));
   const [imageLoading, setImageLoading] = useState(false);
   const currentPhoto = photos[currentIndex];
+
+  // OCR preview state for bottom panel
+  const [ocrText, setOcrText] = useState("");
+  const [ocrCounts, setOcrCounts] = useState({ lines: 0, words: 0 });
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrError, setOcrError] = useState<string | null>(null);
 
   useEffect(() => {
     if (visible) {
@@ -53,12 +62,44 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
     };
   }, [visible, fadeAnim]);
 
-  // Reset loading state when photo changes
+  // Reset loading/OCR state when photo changes
   useEffect(() => {
     if (currentPhoto) {
       setImageLoading(true);
+      setOcrLoading(true);
+      setOcrText("");
+      setOcrCounts({ lines: 0, words: 0 });
+      setOcrError(null);
     }
   }, [currentPhoto]);
+
+  // Run OCR automatically when the modal is visible and photo changes
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      try {
+        if (visible && currentPhoto?.uri) {
+          setOcrLoading(true);
+          const result = await recognizeText(currentPhoto.uri);
+          if (cancelled) return;
+          setOcrText(result.fullText ?? "");
+          setOcrCounts({
+            lines: result.lines?.length ?? 0,
+            words: result.words?.length ?? 0,
+          });
+          setOcrError(null);
+        }
+      } catch (e: any) {
+        if (!cancelled) setOcrError(String(e));
+      } finally {
+        if (!cancelled) setOcrLoading(false);
+      }
+    }
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [visible, currentPhoto?.uri]);
 
   const handleSwipeLeft = () => {
     onSwipeLeft?.();
@@ -118,10 +159,29 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
             </View>
           )}
 
-          {/* Optional: Add navigation indicators or controls here */}
-          <View style={styles.overlay}>
-            {/* Close button or other UI elements can be added here */}
+          {/* Bottom OCR panel */}
+          <View style={styles.ocrPanel}>
+            <Text style={styles.ocrTitle}>
+              Recognized Text {ocrLoading ? "(processing…)" : ""}
+              {!ocrLoading && ` (lines: ${ocrCounts.lines}, words: ${ocrCounts.words})`}
+            </Text>
+            <View style={styles.ocrBox}>
+              {ocrError ? (
+                <Text selectable style={styles.ocrError}>
+                  {ocrError}
+                </Text>
+              ) : (
+                <ScrollView>
+                  <Text selectable style={styles.ocrText}>
+                    {ocrText || "(no text recognized)"}
+                  </Text>
+                </ScrollView>
+              )}
+            </View>
           </View>
+
+          {/* Optional overlay UI */}
+          <View style={styles.overlay} />
         </SafeAreaView>
       </Animated.View>
     </Modal>
@@ -162,5 +222,32 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderTopColor: "transparent",
     // Add rotation animation here if needed
+  },
+
+  // OCR panel styles
+  ocrPanel: {
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 10,
+    backgroundColor: "#111",
+  },
+  ocrTitle: {
+    color: "#fff",
+    fontWeight: "600",
+    marginBottom: 6,
+  },
+  ocrBox: {
+    maxHeight: 180,
+    borderRadius: 8,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#333",
+    backgroundColor: "#1b1b1b",
+    padding: 10,
+  },
+  ocrError: {
+    color: "#ff8080",
+  },
+  ocrText: {
+    color: "#fff",
   },
 });

@@ -1,4 +1,5 @@
-import { View, StyleSheet, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, Alert, Text, ScrollView } from "react-native";
 import { DatabaseDebugView } from "@/components/DatabaseDebugView";
 import { HeaderText } from "@/components/HeaderText";
 import { colors } from "@/config/colors";
@@ -8,9 +9,17 @@ import { Link } from "expo-router";
 import { useImageContext } from "@/providers/ImageContextProvider/ImageContextProvider";
 import * as MediaLibrary from "expo-media-library";
 import { recognizeText } from "@/services/ocr/mlkit";
+import { Image as ExpoImage } from "expo-image";
 
 export default function DebugScreen() {
   const { updateScannerProgress } = useImageContext();
+
+  const [ocrPreview, setOcrPreview] = useState<{
+    uri: string | null;
+    text: string;
+    lines: number;
+    words: number;
+  }>({ uri: null, text: "", lines: 0, words: 0 });
 
   const handleRunScan = async () => {
     await runScannerBatch();
@@ -40,6 +49,14 @@ export default function DebugScreen() {
       }
       const uri = assets.assets[0].uri;
       const result = await recognizeText(uri);
+
+      // Update preview panel to show the image and recognized text
+      setOcrPreview({
+        uri,
+        text: result.fullText ?? "",
+        lines: result.lines?.length ?? 0,
+        words: result.words?.length ?? 0,
+      });
 
       // eslint-disable-next-line no-console
       console.log("[OCR TEST] Result:", {
@@ -75,6 +92,23 @@ export default function DebugScreen() {
       <Link href="/flagged" asChild>
         <Button style={styles.button}>View Flagged Photos</Button>
       </Link>
+
+      {ocrPreview.uri && (
+        <View style={styles.preview}>
+          <ExpoImage
+            source={{ uri: ocrPreview.uri }}
+            style={styles.previewImage}
+            contentFit="contain"
+          />
+          <Text style={styles.previewTitle}>
+            Recognized Text (lines: {ocrPreview.lines}, words: {ocrPreview.words})
+          </Text>
+          <ScrollView style={styles.previewTextBox}>
+            <Text selectable>{ocrPreview.text || "(no text recognized)"}</Text>
+          </ScrollView>
+        </View>
+      )}
+
       <DatabaseDebugView />
     </View>
   );
