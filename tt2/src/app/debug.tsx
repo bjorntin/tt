@@ -10,6 +10,7 @@ import { useImageContext } from "@/providers/ImageContextProvider/ImageContextPr
 import * as MediaLibrary from "expo-media-library";
 import { recognizeText } from "@/services/ocr/mlkit";
 import { Image as ExpoImage } from "expo-image";
+import { OnnxDebugTest } from "@/components/OnnxDebugTest";
 
 export default function DebugScreen() {
   const { updateScannerProgress } = useImageContext();
@@ -78,7 +79,7 @@ export default function DebugScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <HeaderText>PII Scanner Database</HeaderText>
       <Button onPress={handleRunScan} style={styles.button}>
         Force Run Scan Batch
@@ -109,8 +110,13 @@ export default function DebugScreen() {
         </View>
       )}
 
+      <View style={styles.section}>
+        <HeaderText>ONNX Runtime Test</HeaderText>
+        <OnnxDebugTest />
+      </View>
+
       <DatabaseDebugView />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -124,5 +130,32 @@ const styles = StyleSheet.create({
   button: {
     marginBottom: 15,
     backgroundColor: colors.pink,
+  },
+  section: {
+    marginVertical: 20,
+    padding: 16,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 8,
+  },
+  preview: {
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+  },
+  previewImage: {
+    width: "100%",
+    height: 200,
+    marginBottom: 10,
+  },
+  previewTitle: {
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  previewTextBox: {
+    maxHeight: 150,
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 4,
   },
 });
