@@ -54,6 +54,8 @@ export type PiiFinding = {
 export type ScanAnalysis = {
   hasPii: boolean;
   findings: PiiFinding[];
+  // Which engine produced the findings: 'onnx' when the exported model runs, otherwise 'regex'
+  engine?: "onnx" | "regex";
 };
 
 export type TokenIds = {

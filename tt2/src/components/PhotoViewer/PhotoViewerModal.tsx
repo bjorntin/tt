@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Modal,
   View,
@@ -14,6 +14,8 @@ import { PhotoViewerModalProps } from "./types";
 import { PhotoViewerImage } from "./PhotoViewerImage";
 import { GestureHandler } from "./GestureHandler";
 import { recognizeText } from "@/services/ocr/mlkit";
+import { analyzeOcrForPII } from "../../services/pii/inference";
+import { getDatabase, initializeDatabase } from "../../services/pii/database";
 
 export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
   visible,
@@ -33,6 +35,12 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
   const [ocrCounts, setOcrCounts] = useState({ lines: 0, words: 0 });
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrError, setOcrError] = useState<string | null>(null);
+  const [piiFlagged, setPiiFlagged] = useState<boolean | null>(null);
+  const [piiLoading, setPiiLoading] = useState(false);
+  const [piiEngine, setPiiEngine] = useState<"onnx" | "regex" | null>(null);
+  const piiCacheRef = useRef(
+    new Map<string, { hasPii: boolean; findings: any[]; engine: "onnx" | "regex" | null }>(),
+  );
 
   useEffect(() => {
     if (visible) {
@@ -70,6 +78,9 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
       setOcrText("");
       setOcrCounts({ lines: 0, words: 0 });
       setOcrError(null);
+      setPiiFlagged(null);
+      setPiiLoading(false);
+      setPiiEngine(null);
     }
   }, [currentPhoto]);
 
@@ -88,6 +99,74 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
             words: result.words?.length ?? 0,
           });
           setOcrError(null);
+
+          // Finish OCR phase promptly so UI can update
+          setOcrLoading(false);
+
+          // Start PII analysis in background with caching and timeout; do not block UI
+          const uriKey = currentPhoto.originalUri || currentPhoto.uri;
+          const localUri = uriKey;
+          const cache = piiCacheRef.current;
+          const cached = localUri ? cache.get(localUri) : undefined;
+
+          setPiiFlagged(null);
+          setPiiLoading(true);
+          setPiiEngine(null);
+
+          if (cached) {
+            setPiiFlagged(cached.hasPii);
+            setPiiEngine(cached.engine);
+            setPiiLoading(false);
+          } else {
+            (async () => {
+              const timeoutMs = 2000;
+              let timedOut = false;
+              const timer = setTimeout(() => {
+                timedOut = true;
+                if (!cancelled) setPiiLoading(false);
+              }, timeoutMs);
+
+              try {
+                const analysis = await analyzeOcrForPII(result);
+                clearTimeout(timer);
+                if (cancelled || timedOut) return;
+
+                if (localUri) cache.set(localUri, {
+                  hasPii: analysis.hasPii,
+                  findings: analysis.findings ?? [],
+                  engine: analysis.engine ?? null,
+                });
+                setPiiFlagged(analysis.hasPii);
+                setPiiEngine(analysis.engine ?? null);
+
+                // Persist to DB without blocking UI
+                (async () => {
+                  try {
+                    await initializeDatabase();
+                    const db = await getDatabase();
+                    if (db && localUri) {
+                      await db.runAsync(
+                        "INSERT OR IGNORE INTO images (uri, status, findings) VALUES (?, ?, ?);",
+                        localUri,
+                        analysis.hasPii ? "pii_found" : "scanned_clean",
+                        JSON.stringify(analysis.findings ?? [])
+                      );
+                      await db.runAsync(
+                        "UPDATE images SET status = ?, findings = ? WHERE uri = ?;",
+                        analysis.hasPii ? "pii_found" : "scanned_clean",
+                        JSON.stringify(analysis.findings ?? []),
+                        localUri
+                      );
+                    }
+                  } catch {}
+                })();
+              } catch {
+                clearTimeout(timer);
+              } finally {
+                if (!cancelled && !timedOut) setPiiLoading(false);
+              }
+            })();
+          }
         }
       } catch (e: any) {
         if (!cancelled) setOcrError(String(e));
@@ -138,6 +217,7 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
             onTap={handleTap}
           >
             <PhotoViewerImage
+              key={`${currentPhoto.originalUri}:${piiFlagged ? "flag" : "clean"}`}
               photo={currentPhoto}
               isActive={true}
               onClose={onClose}
@@ -162,8 +242,10 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
           {/* Bottom OCR panel */}
           <View style={styles.ocrPanel}>
             <Text style={styles.ocrTitle}>
-              Recognized Text {ocrLoading ? "(processing…)" : ""}
+              Recognized Text {piiLoading ? "(processing…)" : ""}
               {!ocrLoading && ` (lines: ${ocrCounts.lines}, words: ${ocrCounts.words})`}
+              {!ocrLoading && piiFlagged !== null && (piiFlagged ? " • FLAGGED" : " • Clean")}
+              {!ocrLoading && piiEngine ? ` • Engine: ${piiEngine}` : ""}
             </Text>
             <View style={styles.ocrBox}>
               {ocrError ? (

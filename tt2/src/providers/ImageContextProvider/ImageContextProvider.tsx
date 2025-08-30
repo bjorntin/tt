@@ -11,7 +11,7 @@ import {
   buildImageScanQueue,
   registerBackgroundTask,
 } from "../../services/pii/scanner";
-import { getDatabase } from "../../services/pii/database";
+import { getDatabase, initializeDatabase } from "../../services/pii/database";
 import { useFocusEffect } from "expo-router";
 
 // Define the shape of the context data
@@ -92,8 +92,21 @@ export const ImageContextProvider = ({
   );
 
   const getImageStatus = async (uri: string): Promise<string | null> => {
-    // Disable PII status checking to prevent SQLite errors
-    return null;
+    try {
+      await initializeDatabase();
+      const db = await getDatabase();
+      if (!db) return null;
+      const rows = await db.getAllAsync<{ status: string }>(
+        "SELECT status FROM images WHERE uri = ? LIMIT 1;",
+        uri,
+      );
+      if (rows && rows.length > 0) {
+        return rows[0].status ?? null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
   };
 
   const unlockImage = (uri: string) => {

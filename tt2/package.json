@@ -26,6 +26,7 @@
   "dependencies": {
     "@shopify/flash-list": "1.7.6",
     "expo": "53.0.22",
+    "expo-asset": "^11.0.3",
     "expo-background-fetch": "^13.1.6",
     "expo-battery": "^9.1.4",
     "expo-constants": "^17.1.7",

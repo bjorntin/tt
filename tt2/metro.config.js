@@ -1,26 +1,11 @@
-// Learn more https://docs.expo.io/guides/customizing-metro
 const { getDefaultConfig } = require("expo/metro-config");
 
-/** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
-// Add wasm asset support
-config.resolver.assetExts.push("wasm");
-
-if (process.env.EXPO_TV) {
-  config.resolver.sourceExts = [
-    ...(config.resolver.sourceExts || []).map((ext) => `tv.${ext}`),
-    ...(config.resolver.sourceExts || []),
-  ];
-}
-
-// Add COEP and COOP headers to support SharedArrayBuffer
-config.server.enhanceMiddleware = (middleware) => {
-  return (req, res, next) => {
-    res.setHeader("Cross-Origin-Embedder-Policy", "credentialless");
-    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-    middleware(req, res, next);
-  };
-};
+// Ensure Metro bundles ONNX and text assets from ./assets/models/pii_model
+const extraAssetExts = ["onnx", "txt"];
+config.resolver.assetExts = Array.from(
+  new Set([...(config.resolver.assetExts || []), ...extraAssetExts]),
+);
 
 module.exports = config;
