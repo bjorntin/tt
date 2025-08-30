@@ -23,6 +23,11 @@ export type PhotoViewerImageProps = {
   onPan?: (x: number, y: number) => void;
   onLoad?: () => void;
   onError?: (error: any) => void;
+  onClose?: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
 };
 
 export type GestureHandlerProps = {

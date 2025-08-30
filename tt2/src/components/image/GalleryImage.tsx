@@ -57,7 +57,7 @@ export const GalleryImage = ({
     if (isLocked) {
       Alert.alert(
         "Locked Image",
-        "This image is flagged as potentially sensitive because {reason}. Do you want to unlock & view it?",
+        "This image is flagged as potentially sensitive. Do you want to unlock & view it?",
         [
           { text: "Cancel", style: "cancel" },
           {
