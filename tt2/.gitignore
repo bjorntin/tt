@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# Ignore large model files
+tt2/assets/models/pii_model/model.onnx
+
 # Expo
 .expo/
 dist/
