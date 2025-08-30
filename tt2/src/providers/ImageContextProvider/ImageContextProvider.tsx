@@ -11,10 +11,8 @@ import {
   buildImageScanQueue,
   registerBackgroundTask,
 } from "../../services/pii/scanner";
-import * as SQLite from "expo-sqlite";
+import { getDatabase } from "../../services/pii/database";
 import { useFocusEffect } from "expo-router";
-
-const db = SQLite.openDatabaseAsync("pii-scanner.db");
 
 // Define the shape of the context data
 type ImageContextData = {
@@ -60,7 +58,12 @@ export const ImageContextProvider = ({
 
   const updateScannerProgress = useCallback(async () => {
     try {
-      const database = await db;
+      const database = await getDatabase();
+      if (!database) {
+        setScannerProgress({ total: 0, processed: 0 });
+        return;
+      }
+      
       const totalResult = await database.getFirstAsync<{ count: number }>(
         "SELECT COUNT(*) as count FROM images;",
       );
@@ -72,7 +75,7 @@ export const ImageContextProvider = ({
         processed: processedResult?.count ?? 0,
       });
     } catch (e) {
-      // ignore
+      setScannerProgress({ total: 0, processed: 0 });
     }
   }, []);
 
@@ -106,7 +109,11 @@ export const ImageContextProvider = ({
 
   const getImageStatus = async (uri: string): Promise<string | null> => {
     try {
-      const database = await db;
+      const database = await getDatabase();
+      if (!database) {
+        return null;
+      }
+      
       const result = await database.getFirstAsync<{ status: string }>(
         "SELECT status FROM images WHERE uri = ?;",
         [uri],
