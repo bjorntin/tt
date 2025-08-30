@@ -4,6 +4,7 @@ import * as BackgroundFetch from "expo-background-fetch";
 import { getBatteryStateAsync, BatteryState } from "expo-battery";
 import { getNetworkStateAsync, NetworkStateType } from "expo-network";
 import { getDatabase, initializeDatabase } from "./database";
+import { analyzeImageForPII } from "./inference";
 
 /**
  * Initializes the database and creates the 'images' table if it doesn't exist.
@@ -104,20 +105,22 @@ export async function runScannerBatch() {
         image.id,
       );
 
-      // THIS IS WHERE THE ACTUAL PII PIPELINE WOULD RUN
-      // For now, we'll simulate a result.
-      // To test, rename a file to include "_pii_test" in its name.
-      const isTestImage = image.uri.includes("_pii_test");
-      const hasPii = isTestImage || Math.random() > 0.95; // 5% chance for non-test images
-      const newStatus = hasPii ? "pii_found" : "scanned_clean";
+      // Run the actual on-device PII pipeline (OCR + NER/regex fallback).
+      // OCR is currently a stub returning empty results until ML Kit native bridge is added.
+      // NER will try ONNX when wired; until then regex heuristics are used.
+      const analysis = await analyzeImageForPII(image.uri);
+      const newStatus = analysis.hasPii ? "pii_found" : "scanned_clean";
 
       await database.runAsync(
-        "UPDATE images SET status = ? WHERE id = ?;",
+        "UPDATE images SET status = ?, findings = ? WHERE id = ?;",
         newStatus,
+        JSON.stringify(analysis.findings ?? []),
         image.id,
       );
       // eslint-disable-next-line no-console
-      console.log(`[SCANNER] Image ID: ${image.id} marked as ${newStatus}`);
+      console.log(
+        `[SCANNER] Image ID: ${image.id} marked as ${newStatus} (findings: ${analysis.findings.length})`,
+      );
     }
 
     // eslint-disable-next-line no-console
