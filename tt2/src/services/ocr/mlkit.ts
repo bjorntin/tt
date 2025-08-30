@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { OcrResult } from "../pii/types";
 
 /**

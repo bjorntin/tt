@@ -65,6 +65,7 @@ export default {
         },
       ],
       ["./config-plugins/withProfileable"],
+      ["./config-plugins/withMlkitTextRecognition"],
       [
         "@react-native-tvos/config-tv",
         {

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as MediaLibrary from "expo-media-library";
 import * as TaskManager from "expo-task-manager";
 import * as BackgroundFetch from "expo-background-fetch";
@@ -69,7 +70,6 @@ export const BACKGROUND_SCAN_TASK = "background-pii-scan";
 
 // Define the background task
 export async function runScannerBatch() {
-  // eslint-disable-next-line no-console
   console.log("--- Manual PII Scan Started ---");
   try {
     // 1. Fetch all 'pending' images from the database
@@ -84,20 +84,17 @@ export async function runScannerBatch() {
       "pending",
     );
 
-    // eslint-disable-next-line no-console
     console.log(
       `[SCANNER] Found ${pendingImages.length} pending images to process.`,
     );
 
     if (pendingImages.length === 0) {
-      // eslint-disable-next-line no-console
       console.log("[SCANNER] No more images to process.");
       return;
     }
 
     // 2. Process all images
     for (const image of pendingImages) {
-      // eslint-disable-next-line no-console
       console.log(`[SCANNER] Processing image ID: ${image.id}`);
       await database.runAsync(
         "UPDATE images SET status = ? WHERE id = ?;",
@@ -117,22 +114,18 @@ export async function runScannerBatch() {
         JSON.stringify(analysis.findings ?? []),
         image.id,
       );
-      // eslint-disable-next-line no-console
       console.log(
         `[SCANNER] Image ID: ${image.id} marked as ${newStatus} (findings: ${analysis.findings.length})`,
       );
     }
 
-    // eslint-disable-next-line no-console
     console.log("--- Manual PII Scan Finished ---");
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("[SCANNER] Manual scan failed with error:", error);
   }
 }
 
 TaskManager.defineTask(BACKGROUND_SCAN_TASK, async () => {
-  // eslint-disable-next-line no-console
   console.log("--- Background PII Scan Task Started ---");
   try {
     const batteryState = await getBatteryStateAsync();
@@ -141,13 +134,11 @@ TaskManager.defineTask(BACKGROUND_SCAN_TASK, async () => {
     const isCharging = batteryState === BatteryState.CHARGING;
     const isWifi = networkState.type === NetworkStateType.WIFI;
 
-    // eslint-disable-next-line no-console
     console.log(
       `[SCANNER] Conditions: Is Charging? ${isCharging}, Is WiFi? ${isWifi}`,
     );
 
     if (!isCharging && !isWifi) {
-      // eslint-disable-next-line no-console
       console.log("[SCANNER] Conditions not met. Postponing task.");
       return BackgroundFetch.BackgroundFetchResult.NoData;
     }
@@ -156,7 +147,6 @@ TaskManager.defineTask(BACKGROUND_SCAN_TASK, async () => {
 
     return BackgroundFetch.BackgroundFetchResult.NewData;
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("[SCANNER] Task failed with error:", error);
     return BackgroundFetch.BackgroundFetchResult.Failed;
   }
@@ -195,12 +185,10 @@ export async function rescanAllPhotos() {
     }
     
     await database.execAsync("UPDATE images SET status = 'pending';");
-    // eslint-disable-next-line no-console
     console.log(
       "[SCANNER] All images have been reset to 'pending' for rescan.",
     );
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("[SCANNER] Failed to reset images for rescan:", error);
   }
 }

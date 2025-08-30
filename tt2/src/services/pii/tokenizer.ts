@@ -12,7 +12,7 @@ import { TokenIds, Tokenizer } from "./types";
 
 function hashToken(tok: string): number {
   // Simple, deterministic hash to map tokens to a pseudo-id range.
-  // Do NOT use in production for real models — replace with real vocab/BPE.
+  // Do NOT use in production for real models â€” replace with real vocab/BPE.
   let h = 2166136261 >>> 0;
   for (let i = 0; i < tok.length; i++) {
     h ^= tok.charCodeAt(i);
