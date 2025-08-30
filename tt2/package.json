@@ -43,6 +43,7 @@
     "expo-status-bar": "^2.2.3",
     "expo-task-manager": "^13.1.6",
     "metro": "0.82.4",
+    "onnxruntime-react-native": "^1.18.0",
     "p-limit": "^6.2.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",

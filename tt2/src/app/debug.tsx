@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { DatabaseDebugView } from "@/components/DatabaseDebugView";
 import { HeaderText } from "@/components/HeaderText";
 import { colors } from "@/config/colors";
@@ -6,6 +6,8 @@ import { Button } from "@/components/Button";
 import { runScannerBatch, rescanAllPhotos } from "@/services/pii/scanner";
 import { Link } from "expo-router";
 import { useImageContext } from "@/providers/ImageContextProvider/ImageContextProvider";
+import * as MediaLibrary from "expo-media-library";
+import { recognizeText } from "@/services/ocr/mlkit";
 
 export default function DebugScreen() {
   const { updateScannerProgress } = useImageContext();
@@ -20,6 +22,44 @@ export default function DebugScreen() {
     await updateScannerProgress();
   };
 
+  // Quick OCR smoke test: picks the latest photo and runs on-device OCR.
+  const handleTestOcr = async () => {
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("OCR Test", "Media library permission not granted.");
+        return;
+      }
+      const assets = await MediaLibrary.getAssetsAsync({
+        mediaType: "photo",
+        first: 1,
+      });
+      if (!assets.assets.length) {
+        Alert.alert("OCR Test", "No photos found in media library.");
+        return;
+      }
+      const uri = assets.assets[0].uri;
+      const result = await recognizeText(uri);
+
+      // eslint-disable-next-line no-console
+      console.log("[OCR TEST] Result:", {
+        uri,
+        textLen: result.fullText.length,
+        lines: result.lines.length,
+        words: result.words.length,
+      });
+
+      Alert.alert(
+        "OCR Test Result",
+        `URI: ${uri}\nText length: ${result.fullText.length}\nLines: ${result.lines.length}\nWords: ${result.words.length}`,
+      );
+    } catch (e: any) {
+      // eslint-disable-next-line no-console
+      console.error("[OCR TEST] Failed:", e);
+      Alert.alert("OCR Test", `Failed: ${String(e)}`);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <HeaderText>PII Scanner Database</HeaderText>
@@ -28,6 +68,9 @@ export default function DebugScreen() {
       </Button>
       <Button onPress={handleRescan} style={styles.button}>
         Rescan All Photos
+      </Button>
+      <Button onPress={handleTestOcr} style={styles.button}>
+        Test OCR on latest photo
       </Button>
       <Link href="/flagged" asChild>
         <Button style={styles.button}>View Flagged Photos</Button>
