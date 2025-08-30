@@ -4,6 +4,7 @@ import { Logo } from "@/components/Logo";
 import { scaledPixels } from "@/hooks/useScale";
 import { useMediaLibraryPhotos } from "@/providers/MediaLibraryPhotosProvider/MediaLibraryPhotosProvider.web";
 import { useScreenDimensions } from "@/providers/ScreenDimensionsProvider";
+import { logger } from "@/utils/logger";
 import React, { useCallback, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
