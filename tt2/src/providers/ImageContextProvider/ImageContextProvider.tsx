@@ -57,35 +57,19 @@ export const ImageContextProvider = ({
   });
 
   const updateScannerProgress = useCallback(async () => {
-    try {
-      const database = await getDatabase();
-      if (!database) {
-        setScannerProgress({ total: 0, processed: 0 });
-        return;
-      }
-      
-      const totalResult = await database.getFirstAsync<{ count: number }>(
-        "SELECT COUNT(*) as count FROM images;",
-      );
-      const processedResult = await database.getFirstAsync<{ count: number }>(
-        "SELECT COUNT(*) as count FROM images WHERE status != 'pending';",
-      );
-      setScannerProgress({
-        total: totalResult?.count ?? 0,
-        processed: processedResult?.count ?? 0,
-      });
-    } catch (e) {
-      setScannerProgress({ total: 0, processed: 0 });
-    }
+    // Disable scanner progress updates to prevent SQLite errors
+    setScannerProgress({ total: 0, processed: 0 });
   }, []);
 
   // This effect runs once on startup to initialize the database and task.
   useEffect(() => {
     const initialize = async () => {
-      await setupDatabase();
-      await buildImageScanQueue();
-      await registerBackgroundTask();
-      await updateScannerProgress();
+      // Temporarily disable PII scanner to prevent SQLite errors
+      console.warn("PII Scanner disabled due to SQLite compatibility issues");
+      // await setupDatabase();
+      // await buildImageScanQueue();
+      // await registerBackgroundTask();
+      // await updateScannerProgress();
     };
 
     initialize();
@@ -108,22 +92,8 @@ export const ImageContextProvider = ({
   );
 
   const getImageStatus = async (uri: string): Promise<string | null> => {
-    try {
-      const database = await getDatabase();
-      if (!database) {
-        return null;
-      }
-      
-      const result = await database.getFirstAsync<{ status: string }>(
-        "SELECT status FROM images WHERE uri = ?;",
-        [uri],
-      );
-      return result?.status ?? null;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Error fetching PII status:", error);
-      return null;
-    }
+    // Disable PII status checking to prevent SQLite errors
+    return null;
   };
 
   const unlockImage = (uri: string) => {
