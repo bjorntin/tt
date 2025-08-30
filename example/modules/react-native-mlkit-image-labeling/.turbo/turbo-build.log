@@ -1,0 +1,14 @@
+[?9001h[?1004h[?25l[2J[m[H]0;C:\WINDOWS\system32\cmd.exe [?25h[?25lC:\tt-ml\react-native-mlkit\node_modules\expo-module-scripts\bin\expo-module-build:3
+set -eo pipefail
+        ^^^^^^^^[5;1HSyntaxError: Unexpected identifier[90m
+    at internalCompileFunction (node:internal/vm:76:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+    at Module._compile (node:internal/modules/cjs/loader:1328:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+    at Module.load (node:internal/modules/cjs/loader:1203:32)
+    at Module._load (node:internal/modules/cjs/loader:1019:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+    at node:internal/main/run_main_module:28:49
+[?25h[m
+Node.js v18.20.2
+[?9001l[?1004l
